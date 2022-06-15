@@ -36,6 +36,11 @@
             <artifactId>acf-paper</artifactId>
             <version>0.5.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.1.212</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -66,6 +71,10 @@
                         <relocation>
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>com.tchristofferson.mccommodities.locales</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.h2</pattern>
+                            <shadedPattern>com.tchristofferson.mccommodities.h2</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

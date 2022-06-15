@@ -1,0 +1,51 @@
+database:
+  mysql: false
+  username: 'root'
+  password: 'password'
+settings:
+  money-symbol: '$'
+  # How much the price increases or decreases by (based off of starting price)
+  # The value is a percentage. Default = 0.1 = 10%
+  default-price-step: 0.1
+  # How much cheaper sell price is from buy price as a percentage. 0.1 = 10%
+  buy-sell-difference: 0.1
+  # Number of seconds between shop resets
+  # When shops' stock resets, money resets, and prices change accordingly
+  shop-reset-interval: 1800
+  # How many different players there needs to be for the price to be affected
+  # Prevents one player from making the price change
+  unique-player-transaction-threshold: 3
+shop:
+  # Starting amount of money the shop has
+  starting-balance: -1
+  # The current balance of the shop
+  balance: -1
+  categories:
+    # Mining category. Can call this whatever you want.
+    mining:
+      # Shop display name
+      display: '&6&lMining'
+      # Item to represent this section of the shop
+      icon: COAL
+      # The items available in the shop
+      items:
+        # Whats being sold. Refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html for valid items
+        '0':
+          # The item stack being bought and sold
+          item: DIAMOND
+          # How much inventory there is available. When a player sells inventory goes up, if a player buys the inventory goes down.
+          # Set the inventory to -1 for unlimited
+          inventory: -1
+          starting-inventory: -1
+          price: 2.50
+          starting-price: 3.00
+          min-price: 0.25
+          max-price: 12.50
+          # The number of buys or sells per price increase or decrease
+          # If set to 10 and there are 10 more buys than sells, price increases by one price-step. If there are 20 more buys than sells, price increases by two price-steps. etc.
+          # Set to -1 if you only want the price to increase or decrease by one price-step each reset
+          price-step-factor: -1
+    farming:
+      display: '&2&lFarming'
+      icon: WHEAT
+      items: {}
