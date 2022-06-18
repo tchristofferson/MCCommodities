@@ -6,6 +6,9 @@ settings:
   money-symbol: '$'
   # How many decimal places does your economy support.
   decimal-places: 2
+  # If false prices will be truncated (cutoff) after x decimal places (decimal-places above)
+  # If true price will be rounded to the nearest decimal place defined by decimal-places value.
+  #   If the decimal is 5 (middle) it will round the even number (Banker's Rounding)
   price-rounding: false
   # How much the price increases or decreases by (based off of starting price)
   # The value is a percentage. Default = 0.1 = 10%

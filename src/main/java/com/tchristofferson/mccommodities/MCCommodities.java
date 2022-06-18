@@ -19,6 +19,10 @@ import java.io.IOException;
 
 public class MCCommodities extends JavaPlugin implements Listener {
 
+    //Auto set by Spigot
+    private String spigotUser = "%%__USER__%%";
+    private String pluginResourceId = "%%__RESOURCE__%%";
+
     private PaperCommandManager commandManager;
     private Economy economy;
     private MCCommoditySettings settings;
@@ -26,6 +30,8 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        String pluginName = getDescription().getName();
+        Bukkit.getLogger().info("Enabling " + pluginName + ". . .");
         saveDefaultConfig();
         updateConfig();
 
@@ -39,6 +45,9 @@ public class MCCommodities extends JavaPlugin implements Listener {
         setupCommands();
         setupListeners();
         citizensEnabled = citizensDetected();
+
+        Bukkit.getLogger().info(pluginName + " Enabled!");
+        Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
     }
 
     @Override
