@@ -48,7 +48,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPluginEnabled(PluginEnableEvent event) {
+    public void onPluginEnableEvent(PluginEnableEvent event) {
         if (!event.getPlugin().getName().equals("Citizens"))
             return;
 
