@@ -1,8 +1,11 @@
 package com.tchristofferson.mccommodities;
 
 import co.aikar.commands.PaperCommandManager;
+import com.tchristofferson.configupdater.ConfigUpdater;
+import com.tchristofferson.mccommodities.config.MCCommoditySettings;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
@@ -11,14 +14,21 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+
 public class MCCommodities extends JavaPlugin implements Listener {
 
     private PaperCommandManager commandManager;
     private Economy economy;
+    private MCCommoditySettings settings;
     private boolean citizensEnabled = false;
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        updateConfig();
+
         if (!setupEconomy()) {
             Bukkit.getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found! " +
                 "Make sure you have installed a compatible economy plugin.", getDescription().getName()));
@@ -28,14 +38,13 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
         setupCommands();
         setupListeners();
-
-        if (citizensDetected())
-            citizensEnabled = true;
+        citizensEnabled = citizensDetected();
     }
 
     @Override
     public void onDisable() {
-
+        saveConfig();
+        updateConfig();
     }
 
     @EventHandler
@@ -46,8 +55,47 @@ public class MCCommodities extends JavaPlugin implements Listener {
         citizensEnabled = true;
     }
 
+    public Economy getEconomy() {
+        return economy;
+    }
+
     public boolean isCitizensEnabled() {
         return this.citizensEnabled;
+    }
+
+    public MCCommoditySettings getSettings() {
+        if (settings == null)
+            settings = getCurrentSettings();
+
+        return settings;
+    }
+
+    private void updateConfig() {
+        try {
+            ConfigUpdater.update(this, "config.yml", new File(getDataFolder(), "config.yml"), "shop.categories");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private MCCommoditySettings reloadSettings() {
+        reloadConfig();
+        settings = getCurrentSettings();
+
+        return settings;
+    }
+
+    private MCCommoditySettings getCurrentSettings() {
+        ConfigurationSection configSettings = getConfig().getConfigurationSection("settings");
+
+        return new MCCommoditySettings(
+            configSettings.getInt("decimal-places", 2),
+            configSettings.getBoolean("price-rounding", false),
+            configSettings.getDouble("default-price-step", 0.1),
+            configSettings.getDouble("buy-sell-difference", 0),
+            configSettings.getLong("shop-reset-interval", 1800),
+            configSettings.getInt("unique-player-transaction-threshold", 3)
+        );
     }
 
     private boolean citizensDetected() {

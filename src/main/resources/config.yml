@@ -4,11 +4,14 @@ database:
   password: 'password'
 settings:
   money-symbol: '$'
+  # How many decimal places does your economy support.
+  decimal-places: 2
+  price-rounding: false
   # How much the price increases or decreases by (based off of starting price)
   # The value is a percentage. Default = 0.1 = 10%
   default-price-step: 0.1
   # How much cheaper sell price is from buy price as a percentage. 0.1 = 10%
-  buy-sell-difference: 0.1
+  buy-sell-difference: 0.0
   # Number of seconds between shop resets
   # When shops' stock resets, money resets, and prices change accordingly
   shop-reset-interval: 1800
@@ -16,7 +19,7 @@ settings:
   # Prevents one player from making the price change
   unique-player-transaction-threshold: 3
 shop:
-  # Starting amount of money the shop has
+  # Starting amount of money the shop has, -1 for unlimited
   starting-balance: -1
   # The current balance of the shop
   balance: -1
