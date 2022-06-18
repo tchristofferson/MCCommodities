@@ -1,9 +1,11 @@
 package com.tchristofferson.mccommodities.config;
 
+import java.math.RoundingMode;
+
 public class MCCommoditySettings {
 
     private final int decimalPlaces;
-    private final boolean priceRounding;
+    private final RoundingMode roundingMode;
     private final double defaultPriceStep;
     private final double buySellDifference;
     private final long shopResetInterval;
@@ -12,7 +14,7 @@ public class MCCommoditySettings {
     public MCCommoditySettings(int decimalPlaces, boolean priceRounding, double defaultPriceStep,
                                double buySellDifference, long shopResetInterval, int uniquePlayerTransactionThreshold) {
         this.decimalPlaces = decimalPlaces;
-        this.priceRounding = priceRounding;
+        this.roundingMode = priceRounding ? RoundingMode.HALF_EVEN : RoundingMode.DOWN;
         this.defaultPriceStep = defaultPriceStep;
         this.buySellDifference = buySellDifference;
         this.shopResetInterval = shopResetInterval;
@@ -23,8 +25,8 @@ public class MCCommoditySettings {
         return decimalPlaces;
     }
 
-    public boolean isPriceRounding() {
-        return priceRounding;
+    public RoundingMode getRoundingMode() {
+        return roundingMode;
     }
 
     public double getDefaultPriceStep() {

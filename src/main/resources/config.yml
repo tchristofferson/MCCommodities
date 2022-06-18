@@ -11,8 +11,8 @@ settings:
   #   If the decimal is 5 (middle) it will round the even number (Banker's Rounding)
   price-rounding: false
   # How much the price increases or decreases by (based off of starting price)
-  # The value is a percentage. Default = 0.1 = 10%
-  default-price-step: 0.1
+  # The value is a percentage. Default = 0.03 = 3%
+  default-price-step: 0.03
   # How much cheaper sell price is from buy price as a percentage. 0.1 = 10%
   buy-sell-difference: 0.0
   # Number of seconds between shop resets
@@ -45,12 +45,14 @@ shop:
           starting-inventory: -1
           price: 2.50
           starting-price: 3.00
-          min-price: 0.25
-          max-price: 12.50
+          # price floor
+          min-price: 0.01
+          # price ceiling, set to -1 for unlimited
+          max-price: -1
           # The number of buys or sells per price increase or decrease
           # If set to 10 and there are 10 more buys than sells, price increases by one price-step. If there are 20 more buys than sells, price increases by two price-steps. etc.
-          # Set to -1 if you only want the price to increase or decrease by one price-step each reset
-          price-step-factor: -1
+          # Set to 1 if you only want the price to increase or decrease by one price-step each reset
+          price-step-factor: 1
     farming:
       display: '&2&lFarming'
       icon: WHEAT
