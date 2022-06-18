@@ -27,6 +27,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
     private Economy economy;
     private MCCommoditySettings settings;
     private boolean citizensEnabled = false;
+    private long pluginStartTime;
 
     @Override
     public void onEnable() {
@@ -48,6 +49,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
         Bukkit.getLogger().info(pluginName + " Enabled!");
         Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
+        pluginStartTime = System.currentTimeMillis();
     }
 
     @Override

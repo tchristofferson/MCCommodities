@@ -1,5 +1,6 @@
 package com.tchristofferson.mccommodities.core;
 
+import com.tchristofferson.mccommodities.MCCommodities;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -9,26 +10,40 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class Shop {
 
     private final Inventory inventory;
+    //key=slot
+    private final Map<Integer, List<ShopItem>> categories = new HashMap<>();
+    private int nextShopId = 0;
 
-    public Shop(FileConfiguration config) {
-        this.inventory = Bukkit.createInventory(null, 54, "Shop");
-
+    //TODO: Break into private methods
+    public Shop(MCCommodities plugin) {
+        FileConfiguration config = plugin.getConfig();
         ConfigurationSection categoriesSection = config.getConfigurationSection("shop.categories");
 
-        if (categoriesSection == null)
+        if (categoriesSection == null) {
+            this.inventory = Bukkit.createInventory(null, 9, "Shop");
             return;
+        }
 
-        for (String category : categoriesSection.getKeys(false)) {
+        Set<String> categories = categoriesSection.getKeys(false);
+        int rows = (int) Math.ceil(categories.size() / 9D);
+        this.inventory = Bukkit.createInventory(null, rows * 9, "Shop");
+
+        int slot = 0;
+        for (String category : categories) {
             ConfigurationSection categorySection = categoriesSection.getConfigurationSection(category);
 
-            String materialString = categorySection.getString("icon", "");
-            Material iconMaterial = Material.getMaterial(materialString);
+            String iconMaterialString = categorySection.getString("icon", "");
+            Material iconMaterial = Material.getMaterial(iconMaterialString);
 
             if (iconMaterial == null) {
-                Bukkit.getLogger().warning("Couldn't find icon material " + materialString + " for shop category! Skipping.");
+                Bukkit.getLogger().warning("Couldn't find icon material " + iconMaterialString + " for shop category! Skipping.");
                 continue;
             }
 
@@ -37,7 +52,70 @@ public class Shop {
             itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', categorySection.getString("display")));
             icon.setItemMeta(itemMeta);
 
-            inventory.addItem(icon);
+            inventory.setItem(slot, icon);
+            List<ShopItem> shopItems;
+
+            if (this.categories.containsKey(slot)) {
+                shopItems = this.categories.get(slot);
+            } else {
+                shopItems = new ArrayList<>();
+                this.categories.put(slot, shopItems);
+            }
+
+            ConfigurationSection itemsSection = categorySection.getConfigurationSection("items");
+
+            if (itemsSection == null)
+                continue;
+
+            //Key is int index
+            for (String key : itemsSection.getKeys(false)) {
+                ConfigurationSection section = itemsSection.getConfigurationSection(key);
+                ItemStack item;
+
+                if (section.isItemStack("item")) {
+                    item = section.getItemStack("item");
+                    item.setAmount(1);
+                } else {
+                    String materialString = section.getString("item");
+                    Material material = Material.getMaterial(materialString);
+
+                    if (material == null) {
+                        Bukkit.getLogger().warning("Couldn't find material " + materialString + " for shop item! Skipping.");
+                        continue;
+                    }
+
+                    item = new ItemStack(material, 1);
+                }
+
+                int inventory = section.getInt("inventory", -1);
+                int startingInventory = section.getInt("starting-inventory", -1);
+                BigDecimal price = BigDecimal.valueOf(section.getDouble("price"));
+                BigDecimal startingPrice = BigDecimal.valueOf(section.getDouble("starting-price"));
+                BigDecimal minPrice = BigDecimal.valueOf(section.getDouble("min-price", 0.01));
+                BigDecimal maxPrice = BigDecimal.valueOf(section.getDouble("max-price", -1));
+                int priceStepFactor = section.getInt("price-step-factor", 1);
+                int buys = section.getInt("buys", 0);
+                int sells = section.getInt("sells", 0);
+                List<UUID> transactors = config.getStringList("transactors").stream()
+                    .map(UUID::fromString)
+                    .collect(Collectors.toList());
+
+                ShopItem shopItem = new ShopItem(plugin);
+                shopItem.setId(nextShopId++);
+                shopItem.setStartingInventory(startingInventory);
+                shopItem.setStartingPrice(startingPrice);
+                shopItem.setMinPrice(minPrice);
+                shopItem.setMaxPrice(maxPrice);
+                shopItem.setPriceStepFactor(priceStepFactor);
+                shopItem.setInventory(inventory);
+                shopItem.setPrice(price);
+                shopItem.setItemStack(item);
+                shopItem.setBuys(buys);
+                shopItem.setSells(sells);
+                shopItem.setTransactors(transactors);
+
+                shopItems.add(shopItem);
+            }
         }
     }
 }

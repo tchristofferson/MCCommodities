@@ -7,10 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class ShopItem {
 
@@ -80,6 +77,11 @@ public class ShopItem {
 
     public Set<UUID> getTransactors() {
         return transactors;
+    }
+
+    public void setTransactors(List<UUID> transactors) {
+        this.transactors.clear();
+        this.transactors.addAll(transactors);
     }
 
     public void addTransactor(Player player, int inventoryChange) {
@@ -162,6 +164,14 @@ public class ShopItem {
 
     public void setItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
+    }
+
+    public void setBuys(int buys) {
+        this.buys = buys;
+    }
+
+    public void setSells(int sells) {
+        this.sells = sells;
     }
 
     private void resetStats() {
