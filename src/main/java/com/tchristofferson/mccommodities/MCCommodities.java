@@ -7,12 +7,15 @@ import com.tchristofferson.mccommodities.core.Shop;
 import com.tchristofferson.pagedinventories.PagedInventoryAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -33,8 +36,8 @@ public class MCCommodities extends JavaPlugin implements Listener {
     private Economy economy;
     private PagedInventoryAPI pagedInventoryAPI;
     private MCCommoditySettings settings;
-    private boolean citizensEnabled = false;
     private Shop shop;
+    private boolean citizensEnabled = false;
     private long pluginStartTime;
 
     @Override
@@ -56,9 +59,12 @@ public class MCCommodities extends JavaPlugin implements Listener {
         setupCommands();
         setupListeners();
         pagedInventoryAPI = new PagedInventoryAPI(this);
+        //TODO: Remove hardcoded shop
+//        shop = shopSave.getObject("shop", Shop.class);
+        shop = new Shop();
+        shop.addCategory(new ItemStack(Material.DIAMOND, 1), ChatColor.AQUA + "Category Name");
+        shop.getCategory(0);
         citizensEnabled = citizensDetected();
-
-        shop = shopSave.getObject("shop", Shop.class);
 
         Bukkit.getLogger().info(pluginName + " Enabled!");
         Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
@@ -82,6 +88,10 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
     public static MCCommodities getInstance() {
         return instance;
+    }
+
+    public Shop getShop() {
+        return shop;
     }
 
     public Economy getEconomy() {

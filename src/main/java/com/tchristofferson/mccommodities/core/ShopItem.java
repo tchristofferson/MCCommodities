@@ -162,12 +162,22 @@ public class ShopItem implements ConfigurationSerializable {
         this.inventory = inventory;
     }
 
-    public BigDecimal getPrice() {
+    public BigDecimal getBuyPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setBuyPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getSellPrice() {
+        MCCommoditySettings settings = MCCommodities.getInstance().getSettings();
+
+        if (settings.getBuySellDifference() == 0)
+            return price;
+
+        return price.subtract(price.multiply(BigDecimal.valueOf(settings.getBuySellDifference())))
+            .setScale(settings.getDecimalPlaces(), settings.getRoundingMode());
     }
 
     public ItemStack getItemStack() {

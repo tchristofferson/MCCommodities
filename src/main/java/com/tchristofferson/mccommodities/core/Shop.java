@@ -1,17 +1,11 @@
 package com.tchristofferson.mccommodities.core;
 
-import com.tchristofferson.pagedinventories.NavigationRow;
-import com.tchristofferson.pagedinventories.navigationitems.CloseNavigationItem;
-import com.tchristofferson.pagedinventories.navigationitems.NextNavigationItem;
-import com.tchristofferson.pagedinventories.navigationitems.PreviousNavigationItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -72,31 +66,16 @@ public class Shop implements ConfigurationSerializable {
         });
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private NavigationRow getNavigationRow() {
-        ItemStack nextButton = new ItemStack(Material.PLAYER_HEAD, 1);
-        SkullMeta nextSkullMeta = (SkullMeta) nextButton.getItemMeta();
-        //MHF_ArrowRight
-        nextSkullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("50c8510b-5ea0-4d60-be9a-7d542d6cd156")));
-        nextSkullMeta.setDisplayName(ChatColor.GRAY + "Next Page -->");
-        nextButton.setItemMeta(nextSkullMeta);
-        NextNavigationItem nextNavigationItem = new NextNavigationItem(nextButton);
+    public List<ShopCategoryItem> getCategories() {
+        return new ArrayList<>(this.categories.values());
+    }
 
-        ItemStack previousButton = new ItemStack(Material.PLAYER_HEAD, 1);
-        SkullMeta previousSkullMeta = (SkullMeta) previousButton.getItemMeta();
-        //MHF_ArrowLeft
-        previousSkullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("a68f0b64-8d14-4000-a95f-4b9ba14f8df9")));
-        previousSkullMeta.setDisplayName(ChatColor.GRAY + "<-- Previous Page");
-        previousButton.setItemMeta(previousSkullMeta);
-        PreviousNavigationItem previousNavigationItem = new PreviousNavigationItem(previousButton);
+    public ShopCategoryItem getCategory(int id) {
+        return this.categories.get(id);
+    }
 
-        ItemStack closeButton = new ItemStack(Material.BARRIER, 1);
-        ItemMeta closeMeta = closeButton.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Close");
-        closeButton.setItemMeta(closeMeta);
-        CloseNavigationItem closeNavigationItem = new CloseNavigationItem(closeButton);
-
-        return new NavigationRow(nextNavigationItem, previousNavigationItem, closeNavigationItem);
+    public boolean hasCategory(int id) {
+        return this.categories.containsKey(id);
     }
 
     @Override
