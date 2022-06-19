@@ -3,10 +3,13 @@ package com.tchristofferson.mccommodities;
 import co.aikar.commands.PaperCommandManager;
 import com.tchristofferson.configupdater.ConfigUpdater;
 import com.tchristofferson.mccommodities.config.MCCommoditySettings;
+import com.tchristofferson.mccommodities.core.Shop;
 import com.tchristofferson.pagedinventories.PagedInventoryAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
@@ -31,6 +34,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
     private PagedInventoryAPI pagedInventoryAPI;
     private MCCommoditySettings settings;
     private boolean citizensEnabled = false;
+    private Shop shop;
     private long pluginStartTime;
 
     @Override
@@ -39,6 +43,8 @@ public class MCCommodities extends JavaPlugin implements Listener {
         Bukkit.getLogger().info("Enabling " + pluginName + ". . .");
         saveDefaultConfig();
         updateConfig();
+        saveResource("shop.yml", false);
+        FileConfiguration shopSave = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
 
         if (!setupEconomy()) {
             Bukkit.getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found! " +
@@ -52,10 +58,12 @@ public class MCCommodities extends JavaPlugin implements Listener {
         pagedInventoryAPI = new PagedInventoryAPI(this);
         citizensEnabled = citizensDetected();
 
+        shop = shopSave.getObject("shop", Shop.class);
+
         Bukkit.getLogger().info(pluginName + " Enabled!");
         Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
-        pluginStartTime = System.currentTimeMillis();
         instance = this;
+        pluginStartTime = System.currentTimeMillis();
     }
 
     @Override
@@ -97,7 +105,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
     private void updateConfig() {
         try {
-            ConfigUpdater.update(this, "config.yml", new File(getDataFolder(), "config.yml"), "shop.categories");
+            ConfigUpdater.update(this, "config.yml", new File(getDataFolder(), "config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,10 +118,12 @@ public class MCCommodities extends JavaPlugin implements Listener {
         return settings;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private MCCommoditySettings getCurrentSettings() {
         ConfigurationSection configSettings = getConfig().getConfigurationSection("settings");
 
         return new MCCommoditySettings(
+            configSettings.getString("money-symbol", "$").charAt(0),
             configSettings.getInt("decimal-places", 2),
             configSettings.getBoolean("price-rounding", false),
             configSettings.getDouble("default-price-step", 0.1),

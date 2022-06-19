@@ -13,14 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Shop implements ConfigurationSerializable {
 
     private final Inventory inventory;
     //key=slot
     private final Map<Integer, ShopCategoryItem> categories;
+    private BigDecimal balance = BigDecimal.valueOf(-1);
 
     public Shop() {
         this.inventory = Bukkit.createInventory(null, 54, ChatColor.GRAY + "MCCommodities");
@@ -31,6 +32,7 @@ public class Shop implements ConfigurationSerializable {
         this();
         //noinspection unchecked
         this.categories.putAll((Map<Integer, ShopCategoryItem>) map.get("categories"));
+        this.balance = BigDecimal.valueOf((double) map.get("balance"));
 
         this.categories.forEach((slot, shopCategoryItem) -> {
             if (slot < 54) {
@@ -101,6 +103,7 @@ public class Shop implements ConfigurationSerializable {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("categories", categories);
+        map.put("balance", balance.doubleValue());
 
         return map;
     }

@@ -18,7 +18,6 @@ public class ShopItem implements ConfigurationSerializable {
     private BigDecimal startingPrice;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-    private int priceStepFactor;
 
     private int inventory;
     private BigDecimal price;
@@ -40,7 +39,6 @@ public class ShopItem implements ConfigurationSerializable {
         this.startingPrice = BigDecimal.valueOf((double) map.get("startingPrice"));
         this.minPrice = BigDecimal.valueOf((double) map.get("minPrice"));
         this.maxPrice = BigDecimal.valueOf((double) map.get("maxPrice"));
-        this.priceStepFactor = (int) map.get("priceStepFactor");
         this.inventory = (int) map.get("inventory");
         this.price = BigDecimal.valueOf((double) map.get("price"));
         this.itemStack = (ItemStack) map.get("itemStack");
@@ -156,14 +154,6 @@ public class ShopItem implements ConfigurationSerializable {
         this.maxPrice = maxPrice;
     }
 
-    public int getPriceStepFactor() {
-        return priceStepFactor;
-    }
-
-    public void setPriceStepFactor(int priceStepFactor) {
-        this.priceStepFactor = priceStepFactor;
-    }
-
     public int getInventory() {
         return inventory;
     }
@@ -207,12 +197,12 @@ public class ShopItem implements ConfigurationSerializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ShopItem shopItem = (ShopItem) o;
-        return id == shopItem.id && startingInventory == shopItem.startingInventory && priceStepFactor == shopItem.priceStepFactor && inventory == shopItem.inventory && Objects.equals(startingPrice, shopItem.startingPrice) && Objects.equals(minPrice, shopItem.minPrice) && Objects.equals(maxPrice, shopItem.maxPrice) && Objects.equals(price, shopItem.price) && Objects.equals(itemStack, shopItem.itemStack);
+        return id == shopItem.id && startingInventory == shopItem.startingInventory && inventory == shopItem.inventory && Objects.equals(startingPrice, shopItem.startingPrice) && Objects.equals(minPrice, shopItem.minPrice) && Objects.equals(maxPrice, shopItem.maxPrice) && Objects.equals(price, shopItem.price) && Objects.equals(itemStack, shopItem.itemStack);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, startingInventory, startingPrice, minPrice, maxPrice, priceStepFactor, inventory, price, itemStack);
+        return Objects.hash(id, startingInventory, startingPrice, minPrice, maxPrice, inventory, price, itemStack);
     }
 
     @Override
@@ -224,7 +214,6 @@ public class ShopItem implements ConfigurationSerializable {
         map.put("startingPrice", startingPrice.doubleValue());
         map.put("minPrice", minPrice.doubleValue());
         map.put("maxPrice", maxPrice.doubleValue());
-        map.put("priceStepFactor", priceStepFactor);
         map.put("inventory", inventory);
         map.put("price", price.doubleValue());
         map.put("itemStack", itemStack);

@@ -1,0 +1,38 @@
+shop:
+  # Starting amount of money the shop has, -1 for unlimited
+  starting-balance: -1
+  # The current balance of the shop
+  balance: -1
+  categories:
+    # Mining category. Can call this whatever you want.
+    mining:
+      # Shop display name
+      display: '&6&lMining'
+      # Item to represent this section of the shop. Can be Material name or ItemStack
+      icon: COAL
+      # The items available in the shop
+      items:
+        # Whats being sold. Refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html for valid items
+        '0':
+          # The item stack being bought and sold
+          item: DIAMOND
+          # How much inventory there is available. When a player sells inventory goes up, if a player buys the inventory goes down.
+          # Set the inventory to -1 for unlimited
+          inventory: -1
+          starting-inventory: -1
+          price: 2.50
+          starting-price: 3.00
+          # price floor
+          min-price: 0.01
+          # price ceiling, set to -1 for unlimited
+          max-price: -1
+          # How many of this item have already been bought. Managed by plugin
+          buys: 0
+          # How many of this item have already been sold. Managed by plugin
+          sells: 0
+          # UUIDs of players that have bought/sold in a period. Managed by plugin
+          transactors: []
+    farming:
+      display: '&2&lFarming'
+      icon: WHEAT
+      items: {}

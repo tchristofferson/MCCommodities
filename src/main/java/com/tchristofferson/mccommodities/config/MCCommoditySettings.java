@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 
 public class MCCommoditySettings {
 
+    private final char moneySymbol;
     private final int decimalPlaces;
     private final RoundingMode roundingMode;
     private final double defaultPriceStep;
@@ -11,14 +12,20 @@ public class MCCommoditySettings {
     private final long shopResetInterval;
     private final int uniquePlayerTransactionThreshold;
 
-    public MCCommoditySettings(int decimalPlaces, boolean priceRounding, double defaultPriceStep,
-                               double buySellDifference, long shopResetInterval, int uniquePlayerTransactionThreshold) {
+    public MCCommoditySettings(char moneySymbol, int decimalPlaces, boolean priceRounding,
+                               double defaultPriceStep, double buySellDifference, long shopResetInterval,
+                               int uniquePlayerTransactionThreshold) {
+        this.moneySymbol = moneySymbol;
         this.decimalPlaces = decimalPlaces;
         this.roundingMode = priceRounding ? RoundingMode.HALF_EVEN : RoundingMode.DOWN;
         this.defaultPriceStep = defaultPriceStep;
         this.buySellDifference = buySellDifference;
         this.shopResetInterval = shopResetInterval;
         this.uniquePlayerTransactionThreshold = uniquePlayerTransactionThreshold;
+    }
+
+    public char getMoneySymbol() {
+        return moneySymbol;
     }
 
     public int getDecimalPlaces() {
