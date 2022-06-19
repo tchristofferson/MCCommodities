@@ -3,15 +3,15 @@ package com.tchristofferson.mccommodities.core;
 import com.tchristofferson.mccommodities.MCCommodities;
 import com.tchristofferson.mccommodities.config.MCCommoditySettings;
 import com.tchristofferson.mccommodities.utils.Formatter;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class ShopItem {
-
-    private final MCCommodities plugin;
+public class ShopItem implements ConfigurationSerializable {
 
     private int id;
     private int startingInventory;
@@ -25,16 +25,38 @@ public class ShopItem {
     private ItemStack itemStack;
 
     //Unique players involved in buying and selling this item
-    private final Set<UUID> transactors = new HashSet<>();
+    private final Set<UUID> transactors;
     private int buys = 0;
     private int sells = 0;
 
-    public ShopItem(MCCommodities plugin) {
-        this.plugin = plugin;
+    public ShopItem() {
+        this.transactors = new HashSet<>();
+    }
+
+    //Used for deserialization
+    public ShopItem(Map<String, Object> map) {
+        this.id = (int) map.get("id");
+        this.startingInventory = (int) map.get("startingInventory");
+        this.startingPrice = BigDecimal.valueOf((double) map.get("startingPrice"));
+        this.minPrice = BigDecimal.valueOf((double) map.get("minPrice"));
+        this.maxPrice = BigDecimal.valueOf((double) map.get("maxPrice"));
+        this.priceStepFactor = (int) map.get("priceStepFactor");
+        this.inventory = (int) map.get("inventory");
+        this.price = BigDecimal.valueOf((double) map.get("price"));
+        this.itemStack = (ItemStack) map.get("itemStack");
+
+        //noinspection unchecked
+        List<String> transactorUuidStringList = (List<String>) map.get("transactors");
+        this.transactors = transactorUuidStringList.stream()
+            .map(UUID::fromString)
+            .collect(Collectors.toCollection(HashSet::new));
+
+        this.buys = (int) map.get("buys");
+        this.sells = (int) map.get("sells");
     }
 
     public int adjustPrice() {
-        MCCommoditySettings settings = plugin.getSettings();
+        MCCommoditySettings settings = MCCommodities.getInstance().getSettings();
         int uniqueTransactionThreshold = settings.getUniquePlayerTransactionThreshold();
 
         if (transactors.size() < uniqueTransactionThreshold) {
@@ -191,5 +213,25 @@ public class ShopItem {
     @Override
     public int hashCode() {
         return Objects.hash(id, startingInventory, startingPrice, minPrice, maxPrice, priceStepFactor, inventory, price, itemStack);
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        map.put("id", id);
+        map.put("startingInventory", startingInventory);
+        map.put("startingPrice", startingPrice.doubleValue());
+        map.put("minPrice", minPrice.doubleValue());
+        map.put("maxPrice", maxPrice.doubleValue());
+        map.put("priceStepFactor", priceStepFactor);
+        map.put("inventory", inventory);
+        map.put("price", price.doubleValue());
+        map.put("itemStack", itemStack);
+        map.put("transactors", transactors.stream().map(UUID::toString).collect(Collectors.toList()));
+        map.put("buys", buys);
+        map.put("sells", sells);
+
+        return map;
     }
 }

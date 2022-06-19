@@ -1,121 +1,107 @@
 package com.tchristofferson.mccommodities.core;
 
-import com.tchristofferson.mccommodities.MCCommodities;
+import com.tchristofferson.pagedinventories.NavigationRow;
+import com.tchristofferson.pagedinventories.navigationitems.CloseNavigationItem;
+import com.tchristofferson.pagedinventories.navigationitems.NextNavigationItem;
+import com.tchristofferson.pagedinventories.navigationitems.PreviousNavigationItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Shop {
+public class Shop implements ConfigurationSerializable {
 
     private final Inventory inventory;
     //key=slot
-    private final Map<Integer, List<ShopItem>> categories = new HashMap<>();
-    private int nextShopId = 0;
+    private final Map<Integer, ShopCategoryItem> categories;
 
-    //TODO: Break into private methods
-    public Shop(MCCommodities plugin) {
-        FileConfiguration config = plugin.getConfig();
-        ConfigurationSection categoriesSection = config.getConfigurationSection("shop.categories");
+    public Shop() {
+        this.inventory = Bukkit.createInventory(null, 54, ChatColor.GRAY + "MCCommodities");
+        this.categories = new TreeMap<>();
+    }
 
-        if (categoriesSection == null) {
-            this.inventory = Bukkit.createInventory(null, 9, "Shop");
-            return;
-        }
+    public Shop(Map<String, Object> map) {
+        this();
+        //noinspection unchecked
+        this.categories.putAll((Map<Integer, ShopCategoryItem>) map.get("categories"));
 
-        Set<String> categories = categoriesSection.getKeys(false);
-        int rows = (int) Math.ceil(categories.size() / 9D);
-        this.inventory = Bukkit.createInventory(null, rows * 9, "Shop");
-
-        int slot = 0;
-        for (String category : categories) {
-            ConfigurationSection categorySection = categoriesSection.getConfigurationSection(category);
-
-            String iconMaterialString = categorySection.getString("icon", "");
-            Material iconMaterial = Material.getMaterial(iconMaterialString);
-
-            if (iconMaterial == null) {
-                Bukkit.getLogger().warning("Couldn't find icon material " + iconMaterialString + " for shop category! Skipping.");
-                continue;
+        this.categories.forEach((slot, shopCategoryItem) -> {
+            if (slot < 54) {
+                this.inventory.setItem(slot, shopCategoryItem.getItemStack());
             }
+        });
+    }
 
-            ItemStack icon = new ItemStack(iconMaterial, 1);
-            ItemMeta itemMeta = icon.getItemMeta();
-            itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', categorySection.getString("display")));
-            icon.setItemMeta(itemMeta);
+    @SuppressWarnings("ConstantConditions")
+    public void addCategory(ItemStack itemStack, String displayName) {
+        int slot = this.inventory.firstEmpty();
 
-            inventory.setItem(slot, icon);
-            List<ShopItem> shopItems;
+        if (slot == -1)
+            throw new IllegalStateException("The inventory has no more slots available!");
 
-            if (this.categories.containsKey(slot)) {
-                shopItems = this.categories.get(slot);
-            } else {
-                shopItems = new ArrayList<>();
-                this.categories.put(slot, shopItems);
-            }
+        ItemStack clone = itemStack.clone();
+        clone.setAmount(1);
+        ItemMeta itemMeta = clone.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+        clone.setItemMeta(itemMeta);
 
-            ConfigurationSection itemsSection = categorySection.getConfigurationSection("items");
+        this.inventory.setItem(slot, clone);
+    }
 
-            if (itemsSection == null)
-                continue;
+    //Removed category and re-assigns ids and closes empty space in inventory
+    public void removeCategory(int id) {
+        this.categories.remove(id);
 
-            //Key is int index
-            for (String key : itemsSection.getKeys(false)) {
-                ConfigurationSection section = itemsSection.getConfigurationSection(key);
-                ItemStack item;
+        List<ShopCategoryItem> shopCategoryItems = new LinkedList<>(this.categories.values());
+        this.categories.clear();
+        this.inventory.clear();
 
-                if (section.isItemStack("item")) {
-                    item = section.getItemStack("item");
-                    item.setAmount(1);
-                } else {
-                    String materialString = section.getString("item");
-                    Material material = Material.getMaterial(materialString);
+        shopCategoryItems.forEach(shopCategoryItem -> {
+            int slot = this.inventory.firstEmpty();
+            shopCategoryItem.setId(slot);
+            this.categories.put(slot, shopCategoryItem);
+        });
+    }
 
-                    if (material == null) {
-                        Bukkit.getLogger().warning("Couldn't find material " + materialString + " for shop item! Skipping.");
-                        continue;
-                    }
+    @SuppressWarnings("ConstantConditions")
+    private NavigationRow getNavigationRow() {
+        ItemStack nextButton = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta nextSkullMeta = (SkullMeta) nextButton.getItemMeta();
+        //MHF_ArrowRight
+        nextSkullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("50c8510b-5ea0-4d60-be9a-7d542d6cd156")));
+        nextSkullMeta.setDisplayName(ChatColor.GRAY + "Next Page -->");
+        nextButton.setItemMeta(nextSkullMeta);
+        NextNavigationItem nextNavigationItem = new NextNavigationItem(nextButton);
 
-                    item = new ItemStack(material, 1);
-                }
+        ItemStack previousButton = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta previousSkullMeta = (SkullMeta) previousButton.getItemMeta();
+        //MHF_ArrowLeft
+        previousSkullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("a68f0b64-8d14-4000-a95f-4b9ba14f8df9")));
+        previousSkullMeta.setDisplayName(ChatColor.GRAY + "<-- Previous Page");
+        previousButton.setItemMeta(previousSkullMeta);
+        PreviousNavigationItem previousNavigationItem = new PreviousNavigationItem(previousButton);
 
-                int inventory = section.getInt("inventory", -1);
-                int startingInventory = section.getInt("starting-inventory", -1);
-                BigDecimal price = BigDecimal.valueOf(section.getDouble("price"));
-                BigDecimal startingPrice = BigDecimal.valueOf(section.getDouble("starting-price"));
-                BigDecimal minPrice = BigDecimal.valueOf(section.getDouble("min-price", 0.01));
-                BigDecimal maxPrice = BigDecimal.valueOf(section.getDouble("max-price", -1));
-                int priceStepFactor = section.getInt("price-step-factor", 1);
-                int buys = section.getInt("buys", 0);
-                int sells = section.getInt("sells", 0);
-                List<UUID> transactors = config.getStringList("transactors").stream()
-                    .map(UUID::fromString)
-                    .collect(Collectors.toList());
+        ItemStack closeButton = new ItemStack(Material.BARRIER, 1);
+        ItemMeta closeMeta = closeButton.getItemMeta();
+        closeMeta.setDisplayName(ChatColor.RED + "Close");
+        closeButton.setItemMeta(closeMeta);
+        CloseNavigationItem closeNavigationItem = new CloseNavigationItem(closeButton);
 
-                ShopItem shopItem = new ShopItem(plugin);
-                shopItem.setId(nextShopId++);
-                shopItem.setStartingInventory(startingInventory);
-                shopItem.setStartingPrice(startingPrice);
-                shopItem.setMinPrice(minPrice);
-                shopItem.setMaxPrice(maxPrice);
-                shopItem.setPriceStepFactor(priceStepFactor);
-                shopItem.setInventory(inventory);
-                shopItem.setPrice(price);
-                shopItem.setItemStack(item);
-                shopItem.setBuys(buys);
-                shopItem.setSells(sells);
-                shopItem.setTransactors(transactors);
+        return new NavigationRow(nextNavigationItem, previousNavigationItem, closeNavigationItem);
+    }
 
-                shopItems.add(shopItem);
-            }
-        }
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("categories", categories);
+
+        return map;
     }
 }

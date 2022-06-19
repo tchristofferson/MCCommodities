@@ -45,14 +45,14 @@
             <version>0.5.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.212</version>
-        </dependency>
-        <dependency>
             <groupId>com.tchristofferson</groupId>
             <artifactId>ConfigUpdater</artifactId>
             <version>2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tchristofferson</groupId>
+            <artifactId>PagedInventories</artifactId>
+            <version>2.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.citizensnpcs</groupId>
@@ -99,8 +99,12 @@
                             <shadedPattern>com.tchristofferson.mccommodities.locales</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.h2</pattern>
-                            <shadedPattern>com.tchristofferson.mccommodities.h2</shadedPattern>
+                            <pattern>com.tchristofferson.configupdater</pattern>
+                            <shadedPattern>com.tchristofferson.mccommodities.configupdater</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.tchristofferson.pagedinventories</pattern>
+                            <shadedPattern>com.tchristofferson.mccommodities.pagedinventories</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

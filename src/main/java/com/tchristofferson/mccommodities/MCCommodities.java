@@ -3,6 +3,7 @@ package com.tchristofferson.mccommodities;
 import co.aikar.commands.PaperCommandManager;
 import com.tchristofferson.configupdater.ConfigUpdater;
 import com.tchristofferson.mccommodities.config.MCCommoditySettings;
+import com.tchristofferson.pagedinventories.PagedInventoryAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,12 +20,15 @@ import java.io.IOException;
 
 public class MCCommodities extends JavaPlugin implements Listener {
 
+    private static MCCommodities instance;
+
     //Auto set by Spigot
     private String spigotUser = "%%__USER__%%";
     private String pluginResourceId = "%%__RESOURCE__%%";
 
     private PaperCommandManager commandManager;
     private Economy economy;
+    private PagedInventoryAPI pagedInventoryAPI;
     private MCCommoditySettings settings;
     private boolean citizensEnabled = false;
     private long pluginStartTime;
@@ -45,11 +49,13 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
         setupCommands();
         setupListeners();
+        pagedInventoryAPI = new PagedInventoryAPI(this);
         citizensEnabled = citizensDetected();
 
         Bukkit.getLogger().info(pluginName + " Enabled!");
         Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
         pluginStartTime = System.currentTimeMillis();
+        instance = this;
     }
 
     @Override
@@ -66,8 +72,16 @@ public class MCCommodities extends JavaPlugin implements Listener {
         citizensEnabled = true;
     }
 
+    public static MCCommodities getInstance() {
+        return instance;
+    }
+
     public Economy getEconomy() {
         return economy;
+    }
+
+    public PagedInventoryAPI getPagedInventoryAPI() {
+        return pagedInventoryAPI;
     }
 
     public boolean isCitizensEnabled() {
