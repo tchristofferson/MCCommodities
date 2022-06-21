@@ -119,17 +119,20 @@ public class MCCommodities extends JavaPlugin implements Listener {
         return settings;
     }
 
+    /* Registers ConfigurationSerializable classes */
     private void registerConfigObjects() {
         ConfigurationSerialization.registerClass(ShopItem.class);
         ConfigurationSerialization.registerClass(ShopCategoryItem.class);
         ConfigurationSerialization.registerClass(Shop.class);
     }
 
+    /* Loads a Shop class instance from shop.yml */
     private Shop loadShop() {
         FileConfiguration shopSave = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
         return shopSave.getObject("shop", Shop.class);
     }
 
+    /* Updates config.yml with anything new that is added and ensures comments are re-added after saving */
     private void updateConfig() {
         try {
             ConfigUpdater.update(this, "config.yml", new File(getDataFolder(), "config.yml"));
@@ -138,6 +141,7 @@ public class MCCommodities extends JavaPlugin implements Listener {
         }
     }
 
+    /* Re-loads config.yml settings. Nothing should save an instance of MCCommoditySettings except for MCCommodities */
     private MCCommoditySettings reloadSettings() {
         reloadConfig();
         settings = getCurrentSettings();
@@ -165,15 +169,19 @@ public class MCCommodities extends JavaPlugin implements Listener {
         return plugin != null && plugin.isEnabled();
     }
 
+    /* Registers listeners */
     private void setupListeners() {
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(this, this);
     }
 
+    /* Register commands (ACF Library) */
     private void setupCommands() {
         commandManager = new PaperCommandManager(this);
     }
 
+    /* Vault economy setup */
+    @SuppressWarnings("ConstantConditions")
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null)
             return false;
