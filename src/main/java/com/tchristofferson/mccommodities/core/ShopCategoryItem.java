@@ -45,13 +45,9 @@ public class ShopCategoryItem implements ConfigurationSerializable {
         int pageIndex = 0;
 
         for (ShopItem shopItem : this.shopItems) {
-            Bukkit.getLogger().info("nextSlot: " + nextSlot);
-            Bukkit.getLogger().info("PageIndex: " + pageIndex);
-            Bukkit.getLogger().info("PagedInventory size: " + pagedInventory.getSize());
             if (pageIndex + 1 > pagedInventory.getSize())
                 pagedInventory.addPage(Bukkit.createInventory(null, 54, "Shop - " + this.itemStack.getItemMeta().getDisplayName()));
 
-            Bukkit.getLogger().info("PagedInventory size: " + pagedInventory.getSize());
             PageModifier pageModifier = pagedInventory.getPageModifier(pageIndex);
             ItemStack itemStack = shopItem.getItemStack().clone();
             ItemMeta itemMeta = itemStack.getItemMeta();
