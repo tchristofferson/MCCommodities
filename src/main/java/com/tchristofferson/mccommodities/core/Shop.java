@@ -1,5 +1,6 @@
 package com.tchristofferson.mccommodities.core;
 
+import com.tchristofferson.mccommodities.utils.NumberUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -26,7 +27,7 @@ public class Shop implements ConfigurationSerializable {
         this();
         //noinspection unchecked
         this.categories.putAll((Map<Integer, ShopCategoryItem>) map.get("categories"));
-        this.balance = BigDecimal.valueOf((double) map.get("balance"));
+        this.balance = BigDecimal.valueOf(NumberUtil.toDouble(map.get("balance")));
 
         this.categories.forEach((slot, shopCategoryItem) -> {
             if (slot < 54) {

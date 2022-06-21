@@ -3,6 +3,7 @@ package com.tchristofferson.mccommodities.core;
 import com.tchristofferson.mccommodities.MCCommodities;
 import com.tchristofferson.mccommodities.config.MCCommoditySettings;
 import com.tchristofferson.mccommodities.utils.Formatter;
+import com.tchristofferson.mccommodities.utils.NumberUtil;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -36,11 +37,11 @@ public class ShopItem implements ConfigurationSerializable {
     public ShopItem(Map<String, Object> map) {
         this.id = (int) map.get("id");
         this.startingInventory = (int) map.get("startingInventory");
-        this.startingPrice = BigDecimal.valueOf((double) map.get("startingPrice"));
-        this.minPrice = BigDecimal.valueOf((double) map.get("minPrice"));
-        this.maxPrice = BigDecimal.valueOf((double) map.get("maxPrice"));
+        this.startingPrice = BigDecimal.valueOf(NumberUtil.toDouble(map.get("startingPrice")));
+        this.minPrice = BigDecimal.valueOf(NumberUtil.toDouble(map.get("minPrice")));
+        this.maxPrice = BigDecimal.valueOf(NumberUtil.toDouble(map.get("maxPrice")));
         this.inventory = (int) map.get("inventory");
-        this.price = BigDecimal.valueOf((double) map.get("price"));
+        this.price = BigDecimal.valueOf(NumberUtil.toDouble(map.get("price")));
         this.itemStack = (ItemStack) map.get("itemStack");
 
         //noinspection unchecked

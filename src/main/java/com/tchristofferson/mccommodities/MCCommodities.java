@@ -4,18 +4,18 @@ import co.aikar.commands.PaperCommandManager;
 import com.tchristofferson.configupdater.ConfigUpdater;
 import com.tchristofferson.mccommodities.config.MCCommoditySettings;
 import com.tchristofferson.mccommodities.core.Shop;
+import com.tchristofferson.mccommodities.core.ShopCategoryItem;
+import com.tchristofferson.mccommodities.core.ShopItem;
 import com.tchristofferson.pagedinventories.PagedInventoryAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -42,12 +42,12 @@ public class MCCommodities extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        instance = this;
         String pluginName = getDescription().getName();
         Bukkit.getLogger().info("Enabling " + pluginName + ". . .");
         saveDefaultConfig();
         updateConfig();
         saveResource("shop.yml", false);
-        FileConfiguration shopSave = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
 
         if (!setupEconomy()) {
             Bukkit.getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found! " +
@@ -56,19 +56,15 @@ public class MCCommodities extends JavaPlugin implements Listener {
             return;
         }
 
+        registerConfigObjects();
         setupCommands();
         setupListeners();
         pagedInventoryAPI = new PagedInventoryAPI(this);
-        //TODO: Remove hardcoded shop
-//        shop = shopSave.getObject("shop", Shop.class);
-        shop = new Shop();
-        shop.addCategory(new ItemStack(Material.DIAMOND, 1), ChatColor.AQUA + "Category Name");
-        shop.getCategory(0);
+        shop = loadShop();
         citizensEnabled = citizensDetected();
 
         Bukkit.getLogger().info(pluginName + " Enabled!");
         Bukkit.getLogger().info(pluginName + " registered to Spigot user " + spigotUser);
-        instance = this;
         pluginStartTime = System.currentTimeMillis();
     }
 
@@ -76,6 +72,16 @@ public class MCCommodities extends JavaPlugin implements Listener {
     public void onDisable() {
         saveConfig();
         updateConfig();
+
+        FileConfiguration shopSave = new YamlConfiguration();
+        shopSave.set("shop", shop);
+
+        try {
+            shopSave.save(new File(getDataFolder(), "shop.yml"));
+        } catch (IOException e) {
+            Bukkit.getLogger().severe("Failed to save to shop.yml! Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @EventHandler
@@ -111,6 +117,17 @@ public class MCCommodities extends JavaPlugin implements Listener {
             settings = getCurrentSettings();
 
         return settings;
+    }
+
+    private void registerConfigObjects() {
+        ConfigurationSerialization.registerClass(ShopItem.class);
+        ConfigurationSerialization.registerClass(ShopCategoryItem.class);
+        ConfigurationSerialization.registerClass(Shop.class);
+    }
+
+    private Shop loadShop() {
+        FileConfiguration shopSave = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "shop.yml"));
+        return shopSave.getObject("shop", Shop.class);
     }
 
     private void updateConfig() {
