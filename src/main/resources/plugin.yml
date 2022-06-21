@@ -5,6 +5,13 @@ api-version: 1.13
 author: tchristofferson
 website: https://github.com/tchristofferson/MCCommodities
 
+commands:
+  mccommodities:
+    aliases: [mcc]
+    description: Opens the MCCommodities buy and sell menu
+    permission: mccommodities.mcc
+    permission-message: §cPermission Denied!
+
 depend:
   - Vault
 
