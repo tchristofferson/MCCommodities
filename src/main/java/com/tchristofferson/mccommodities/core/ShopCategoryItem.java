@@ -5,6 +5,7 @@ import com.tchristofferson.mccommodities.config.MCCommoditySettings;
 import com.tchristofferson.pagedinventories.IPagedInventory;
 import com.tchristofferson.pagedinventories.NavigationRow;
 import com.tchristofferson.pagedinventories.PageModifier;
+import com.tchristofferson.pagedinventories.handlers.PagedInventoryClickHandler;
 import com.tchristofferson.pagedinventories.navigationitems.CloseNavigationItem;
 import com.tchristofferson.pagedinventories.navigationitems.NextNavigationItem;
 import com.tchristofferson.pagedinventories.navigationitems.PreviousNavigationItem;
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -67,6 +69,10 @@ public class ShopCategoryItem implements ConfigurationSerializable {
         }
     }
 
+    public void openItemInventory(Player player) {
+        pagedInventory.open(player);
+    }
+
     public int getId() {
         return id;
     }
@@ -112,9 +118,18 @@ public class ShopCategoryItem implements ConfigurationSerializable {
     }
 
     private IPagedInventory createPagedInventory() {
-        return MCCommodities.getInstance()
+        IPagedInventory pagedInventory = MCCommodities.getInstance()
             .getPagedInventoryAPI()
             .createPagedInventory(getNavigationRow());
+
+        pagedInventory.addHandler(new PagedInventoryClickHandler() {
+            @Override
+            public void handle(ClickHandler clickHandler) {
+
+            }
+        });
+
+        return pagedInventory;
     }
 
     @SuppressWarnings("ConstantConditions")

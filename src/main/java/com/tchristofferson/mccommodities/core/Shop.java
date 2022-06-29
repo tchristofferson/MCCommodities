@@ -17,6 +17,8 @@ public class Shop implements ConfigurationSerializable {
     //key=slot
     private final Map<Integer, ShopCategoryItem> categories;
     private BigDecimal balance = BigDecimal.valueOf(-1);
+    private BigDecimal defaultBalance = BigDecimal.valueOf(-1);
+    private long lastAdjusted;
 
     public Shop() {
         this.inventory = Bukkit.createInventory(null, 54, ChatColor.GRAY + "MCCommodities");
@@ -28,12 +30,35 @@ public class Shop implements ConfigurationSerializable {
         //noinspection unchecked
         this.categories.putAll((Map<Integer, ShopCategoryItem>) map.get("categories"));
         this.balance = BigDecimal.valueOf(NumberUtil.toDouble(map.get("balance")));
+        this.defaultBalance = BigDecimal.valueOf(NumberUtil.toDouble(map.get("defaultBalance")));
+        this.lastAdjusted = NumberUtil.toLong(map.get("lastAdjusted"));
 
         this.categories.forEach((slot, shopCategoryItem) -> {
             if (slot < 54) {
                 this.inventory.setItem(slot, shopCategoryItem.getItemStack());
             }
         });
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public long getLastAdjusted() {
+        return lastAdjusted;
+    }
+
+    public void setLastAdjusted(long lastAdjusted) {
+        this.lastAdjusted = lastAdjusted;
+    }
+
+    public void adjust() {
+        categories.values().forEach(shopCategoryItem -> shopCategoryItem.getShopItems().forEach(ShopItem::adjustPrice));
+        lastAdjusted = System.currentTimeMillis();
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -84,6 +109,8 @@ public class Shop implements ConfigurationSerializable {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("categories", categories);
         map.put("balance", balance.doubleValue());
+        map.put("defaultBalance", defaultBalance.doubleValue());
+        map.put("lastAdjusted", lastAdjusted);
 
         return map;
     }

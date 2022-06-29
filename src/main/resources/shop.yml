@@ -24,4 +24,6 @@ shop:
           transactors: []
           buys: 0
           sells: 0
-  balance: -1.0
+  balance: -1
+  defaultBalance: -1
+  lastAdjusted: 0

@@ -26,6 +26,7 @@ import java.io.IOException;
 
 public class MCCommodities extends JavaPlugin implements Listener {
 
+    //Static reference required for deserialization of custom objects
     private static MCCommodities instance;
 
     //Auto set by Spigot
@@ -117,6 +118,10 @@ public class MCCommodities extends JavaPlugin implements Listener {
             settings = getCurrentSettings();
 
         return settings;
+    }
+
+    public long getPluginStartTime() {
+        return pluginStartTime;
     }
 
     /* Registers ConfigurationSerializable classes */

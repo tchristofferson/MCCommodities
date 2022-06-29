@@ -6,4 +6,8 @@ public class NumberUtil {
         return ((Number) obj).doubleValue();
     }
 
+    public static Long toLong(Object obj) {
+        return ((Number) obj).longValue();
+    }
+
 }
